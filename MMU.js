@@ -23,7 +23,7 @@ export default class MMU {
 
     generatePage(pid, ptr) {
         return {
-            id: this.pageIdCounter++,
+            pageId: this.pageIdCounter++,
             pid,
             ptr,
             inRAM: false,
