@@ -1,3 +1,5 @@
+// Simple Lexer for the project
+// This lexer reads a file named instrucciones.txt and tokenizes its contents
 const fs = require('fs');
 const path = require('path');
 
@@ -14,9 +16,12 @@ function lexer(input) {
 
   for (const line of lines) {
     let matched = false;
+    console.log('Processing line:', line);
+
 
     for (const [type, pattern] of Object.entries(tokenPatterns)) {
       const match = line.match(pattern);
+      console.log('Matching against pattern:', pattern, 'Result:', match);
       if (match) {
         const args = match.slice(1).map(Number);
         tokens.push({ type, args });
@@ -33,8 +38,8 @@ function lexer(input) {
   return tokens;
 }
 
-// Read instrucciones.txt from same directory
-const filePath = path.join(__dirname, 'instrucciones.txt');
+// Read instrucciones.txt from the previous directory
+const filePath = path.join(__dirname, '../instrucciones.txt');
 
 fs.readFile(filePath, 'utf8', (err, data) => {
   if (err) {
@@ -48,4 +53,5 @@ fs.readFile(filePath, 'utf8', (err, data) => {
   } catch (e) {
     console.error('Lexer error:', e.message);
   }
-});
+}); 
+
