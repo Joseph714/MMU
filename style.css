@@ -1,0 +1,157 @@
+body{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#titleMF{
+    font-family: "Poppins", sans-serif;
+    font-style: italic;
+    font-size: 30px;
+}
+
+.contenedorMF{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: auto;
+    height: auto;
+    margin-top: 50px;
+}
+
+.tMemoriaFisica{
+    border: 0px solid #969696;
+    height: 50px;
+    width: 1200px;
+    margin-bottom: 20px;
+    border-collapse: collapse;
+}
+
+.pagesMF{
+    border: 1px solid #969696;
+    width: 12 px;
+}
+
+.titleTables{
+    font-family: "Poppins", sans-serif;
+    font-weight: bold;
+    border: 1px solid #969696;
+    background-color: #969696;
+}
+
+
+/*PARTE DE LOS DETALLES DE LOS PROCESOS*/
+.contenedorProGen{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    width: 1200px;
+    height: auto;
+    margin-bottom: 50px;
+}
+
+.contenedorPro{
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+
+    width: 567px;
+    height: auto;
+}
+
+.tMMU{
+    width: 550px;
+    border-collapse: collapse;
+}
+
+.subtitleTablesMMU {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+
+    width: 68px;
+    border: 1px solid #969696;
+    background-color: #E3E3E3;
+}
+
+.processMMU{
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+
+    width: 68px;
+    border: 1px solid #969696;
+}
+
+.scrollBody{
+    height: 240px;
+    width: 567px;
+    overflow-y: auto;
+}
+
+
+
+/*PARTE DE LOS DATOS RESUMEN*/
+.contenedorResumenGen{
+    display: flex;
+    justify-content: space-around;
+
+    width: 1200px;
+    height: auto;
+    margin-bottom: 50px;
+}
+
+.contenedorResumen{
+    display: flex;
+    flex-direction: column;
+
+    width: 400px;
+    height: auto;
+}
+
+.tResume{
+    width: 400px;
+    border-collapse: collapse;
+    margin-bottom: 20PX;
+}
+
+.subtitleTablesResumen {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+
+    width: 400px;
+    border: 1px solid #969696;
+    background-color: #969696;
+}
+
+.ssubtitleTablesResumen {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+
+    width: 400px;
+    border: 1px solid #969696;
+    background-color: #E3E3E3;
+}
+
+.contentTablesResumen{
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    height: 20px;
+
+    border: 1px solid #969696;
+}
+
+#idThrasS, #idThrasP, #idFrag{
+    border-bottom: white;
+}
+
+.omitir{
+    height: 20px;
+    border: 1px solid #969696;
+    border-top: white;
+}
