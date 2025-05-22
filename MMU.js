@@ -13,12 +13,10 @@ export default class MMU {
         this.algorithmName = algorithmName;
         this.pageIdCounter = 0;
 
-        // Token stream for OPT algorithm
         this.tokenStream = [];
         this.tokenPointer = 0;
-
-        // FIFO queue for page replacement
         this.fifoQueue = []; 
+        this.referenceBits = new Map(); // for Second Chance
     }
 
     setTokenStream(tokens) {
@@ -37,6 +35,8 @@ export default class MMU {
         };
     }
 
+    // Simulate the allocation of pages in RAM (New operation)
+    // If there is enought space it will not generate a page fault
     allocatePages(pid, size) {
         const numPages = Math.ceil(size / this.page_size);
         const pages = [];
@@ -48,7 +48,7 @@ export default class MMU {
             pages.push(page);
         }
 
-        this.memoryMap.set(ptr, { pid, pages });
+        this.memoryMap.set(ptr, { pid, pages, requestedSize: size });
 
         if (!this.symbolTable.has(pid)) this.symbolTable.set(pid, []);
         this.symbolTable.get(pid).push(ptr);
@@ -64,8 +64,10 @@ export default class MMU {
             this.fifoQueue.push(page);
             this.time += 1;
             page.lastUsed = this.time;
+            this.referenceBits.set(page.pageId, 1);
         } else {
             const evicted = this.replacePage();
+            console.log("Reemplazando:", evicted.pageId)
             evicted.inRAM = false;
             this.virtualMemory.push(evicted);
 
@@ -73,7 +75,7 @@ export default class MMU {
             page.frame = evicted.frame;
             this.ram[evicted.frame] = page;
             this.fifoQueue.push(page);
-            
+            this.referenceBits.set(page.pageId, 1);
 
             this.time += 5;
             this.thrashing += 5;
@@ -84,20 +86,21 @@ export default class MMU {
 
     replacePage() {
         switch (this.algorithmName) {
-            case 'FIFO':
-                return this.replaceFIFO();
-            case 'OPT':
-                return this.replaceOPT();
-            default:
-                throw new Error(`Unknown algorithm: ${this.algorithmName}`);
+            case 'FIFO': return this.replaceFIFO();
+            case 'OPT': return this.replaceOPT();
+            case 'MRU': return this.replaceMRU();
+            case 'RND': return this.replaceRND();
+            case 'SC': return this.replaceSC();
+            default: throw new Error(`Unknown algorithm: ${this.algorithmName}`);
         }
     }
+
 
     replaceFIFO() {
         const evicted = this.fifoQueue.shift();
         const index = this.ram.findIndex(p => p.pageId === evicted.pageId);
         if (index !== -1) {
-            this.ram[index] = null; // Mark frame for reuse
+            this.ram[index] = null;
             evicted.frame = index;
         }
         return evicted;
@@ -130,12 +133,47 @@ export default class MMU {
                 }
             }
 
-            if (!found) {
-                return this.ram[i];
+            if (!found) return this.ram[i];
+        }
+
+        return this.ram[indexToReplace];
+    }
+
+    replaceMRU() {
+        let mostRecent = -1;
+        let indexToReplace = -1;
+
+        for (let i = 0; i < this.ram.length; i++) {
+            if (this.ram[i].lastUsed > mostRecent) {
+                mostRecent = this.ram[i].lastUsed;
+                indexToReplace = i;
             }
         }
 
         return this.ram[indexToReplace];
+    }
+
+    replaceRND() {
+        const index = Math.floor(Math.random() * this.ram.length);
+        return this.ram[index];
+    }
+
+    replaceSC() {
+        while (true) {
+            const candidate = this.fifoQueue[0];
+            if (this.referenceBits.get(candidate.pageId) === 0) {
+                this.fifoQueue.shift();
+                const index = this.ram.findIndex(p => p.pageId === candidate.pageId);
+                if (index !== -1) {
+                    this.ram[index] = null;
+                    candidate.frame = index;
+                }
+                return candidate;
+            } else {
+                this.referenceBits.set(candidate.pageId, 0);
+                this.fifoQueue.push(this.fifoQueue.shift());
+            }
+        }
     }
 
     usePage(ptr) {
@@ -148,6 +186,7 @@ export default class MMU {
             } else {
                 this.time += 1;
                 page.lastUsed = this.time;
+                this.referenceBits.set(page.pageId, 1);
             }
         }
 
@@ -162,6 +201,7 @@ export default class MMU {
             if (page.inRAM) {
                 this.ram = this.ram.filter(p => p.pageId !== page.pageId);
                 this.fifoQueue = this.fifoQueue.filter(p => p.pageId !== page.pageId);
+                this.referenceBits.delete(page.pageId);
             } else {
                 this.virtualMemory = this.virtualMemory.filter(p => p.pageId !== page.pageId);
             }
@@ -185,6 +225,12 @@ export default class MMU {
         const vramUsed = this.virtualMemory.length * this.page_size;
         const totalSimTime = this.time;
 
+        let wastedMemory = 0;
+        for (const { pages, requestedSize } of this.memoryMap.values()) {
+            const allocated = pages.length * this.page_size;
+            wastedMemory += (allocated - requestedSize);
+        }
+
         return {
             runningProcesses: Array.from(this.symbolTable.keys()),
             ram: this.ram,
@@ -195,17 +241,7 @@ export default class MMU {
             time: totalSimTime,
             thrashing: this.thrashing,
             thrashingPercent: (this.thrashing / totalSimTime) * 100,
+            wastedKB: wastedMemory / 1000,
         };
     }
 }
-
-// Example usage with tokens:
-// import MMU from './MMU.js';
-// const mmu = new MMU('OPT');
-// mmu.setTokenStream(Tokens);
-// Tokens.forEach(t => {
-//   if (t.type === 'new') mmu.allocatePages(t.args[0], t.args[1]);
-//   else if (t.type === 'use') mmu.usePage(t.args[0]);
-//   else if (t.type === 'delete') mmu.deletePtr(t.args[0]);
-//   else if (t.type === 'kill') mmu.killProcess(t.args[0]);
-// });

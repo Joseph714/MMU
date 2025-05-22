@@ -5,35 +5,38 @@ import MMU from './MMU.js';
 function main() {
 
 
+const mmu = new MMU('RND');
 
-    const mmu = new MMU('FIFO');
+const tokens = [
+  // Llenamos los 6 marcos
+  { type: 'new', args: [1, 4000] }, // page 0
+  { type: 'new', args: [1, 4000] }, // page 1
+  { type: 'new', args: [1, 4000] }, // page 2
+  { type: 'new', args: [1, 4000] }, // page 3
+  { type: 'new', args: [1, 4000] }, // page 4
+  { type: 'new', args: [1, 4000] }, // page 5
 
-    // new(1,8000)
-    const ptr1 = mmu.allocatePages(1, 8000);
-    console.log(mmu.getStats());
+  // Accedemos algunas (aunque no afecta a RND)
+  { type: 'use', args: [3] }, // page 2
+  { type: 'use', args: [5] }, // page 4
 
-    // new(2,8000)
-    const ptr2 = mmu.allocatePages(2, 8000);
-    console.log(mmu.getStats());
+  // Estas 3 causarán reemplazo aleatorio
+  { type: 'new', args: [1, 4000] }, // page 6
+  { type: 'new', args: [1, 4000] }, // page 7
+  { type: 'new', args: [1, 4000] }, // page 8
+];
 
-    // new(3,8000)
-    const ptr3 = mmu.allocatePages(3, 8000);
-    console.log(mmu.getStats());
+mmu.setTokenStream(tokens);
 
-    // new(4,8000)
-    const ptr4 = mmu.allocatePages(4, 8000);
-    console.log(mmu.getStats());
+tokens.forEach(t => {
+  if (t.type === 'new') mmu.allocatePages(t.args[0], t.args[1]);
+  else if (t.type === 'use') mmu.usePage(t.args[0]);
+});
 
+console.log('RAM Final:', mmu.ram.map(p => p?.pageId));
+console.log('Virtual Memory:', mmu.virtualMemory.map(p => p.pageId));
+console.log('Stats:', mmu.getStats());
 
-
-    // const mmu = new MMU('OPT');
-    // mmu.setTokenStream(Tokens);
-    // Tokens.forEach(t => {
-    //   if (t.type === 'new') mmu.allocatePages(t.args[0], t.args[1]);
-    //   else if (t.type === 'use') mmu.usePage(t.args[0]);
-    //   else if (t.type === 'delete') mmu.deletePtr(t.args[0]);
-    //   else if (t.type === 'kill') mmu.killProcess(t.args[0]);
-    // });
 }
 
 
