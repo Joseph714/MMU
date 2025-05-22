@@ -1,7 +1,11 @@
 // Simple Lexer for the project
 // This lexer reads a file named instrucciones.txt and tokenizes its contents
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function lexer(input) {
   const lines = input.split(/\r?\n/); // OS-agnostic line splitting
@@ -37,19 +41,17 @@ function lexer(input) {
   return tokens;
 }
 
+
+//Test the lexer with the file =========================
+
 // Read instrucciones.txt from the parent directory
-const filePath = path.join(__dirname, '../instrucciones.txt');
 
-fs.readFile(filePath, 'utf8', (err, data) => {
-  if (err) {
-    console.error('Error reading instrucciones.txt:', err.message);
-    return;
-  }
-
+export async function readTokensFromFile() {
   try {
-    const tokens = lexer(data);
-    console.log('Tokens:', tokens);
-  } catch (e) {
-    console.error('Lexer error:', e.message);
+    const filePath = path.join(__dirname, '../instrucciones.txt');
+    const data = await fs.readFile(filePath, 'utf8');
+    return lexer(data);
+  } catch (err) {
+    console.error('[Lexer] Error:', err.message);
   }
-});
+}

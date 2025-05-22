@@ -1,4 +1,10 @@
-const { write, writeFile } = require("fs");
+import { writeFile } from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 // Seeded PRNG (Mulberry32)
 function mulberry32(seed) {
@@ -11,7 +17,7 @@ function mulberry32(seed) {
 }
 
 // P: number of processes, N: number of operations, seed: fixed seed for reproducibility
-function generateSequence(P, N, seed = Date.now()) {
+export function generateSequence(P, N, seed) {
   console.log(`Seed: ${seed}`);
   const rand = mulberry32(seed); // seed-based random generator
 
@@ -96,19 +102,13 @@ function generateSequence(P, N, seed = Date.now()) {
   return totalOperations;
 }
 
-// Example usage with seed:
-const result = generateSequence(50, 500);
-console.log(result.join('\n'));
 
-writeFile(
-  "../instrucciones.txt",
-  result.join("\n"),
-  (err) => {
-    if (err) {
-      console.error("Error writing to instrucciones.txt:", err);
-    } else {
-      console.log("Instructions written to instrucciones.txt");
-    }
-  }
-);
+// Test the function ======================
+// Example usage with seed:
+export async function writeSequenceToFile(P, N, seed) {
+  const sequence = generateSequence(P, N, seed).join('\n');
+  const filePath = path.join(__dirname, '../instrucciones.txt');
+  await writeFile(filePath, sequence, 'utf8'); 
+}
+
 
