@@ -4,24 +4,23 @@ const fs = require('fs');
 const path = require('path');
 
 function lexer(input) {
-  const lines = input.trim().split('\n');
+  const lines = input.split(/\r?\n/); // OS-agnostic line splitting
   const tokens = [];
 
   const tokenPatterns = {
-    new: /^new\((\d+),(\d+)\)$/,
+    new: /^new\((\d+),\s*(\d+)\)$/,
     use: /^use\((\d+)\)$/,
     delete: /^delete\((\d+)\)$/,
     kill: /^kill\((\d+)\)$/
   };
 
-  for (const line of lines) {
+  for (let line of lines) {
+    line = line.trim(); // Remove surrounding spaces and \r if present
+    if (line === '') continue; // Skip empty lines
     let matched = false;
-    console.log('Processing line:', line);
-
 
     for (const [type, pattern] of Object.entries(tokenPatterns)) {
       const match = line.match(pattern);
-      console.log('Matching against pattern:', pattern, 'Result:', match);
       if (match) {
         const args = match.slice(1).map(Number);
         tokens.push({ type, args });
@@ -38,7 +37,7 @@ function lexer(input) {
   return tokens;
 }
 
-// Read instrucciones.txt from the previous directory
+// Read instrucciones.txt from the parent directory
 const filePath = path.join(__dirname, '../instrucciones.txt');
 
 fs.readFile(filePath, 'utf8', (err, data) => {
@@ -53,5 +52,4 @@ fs.readFile(filePath, 'utf8', (err, data) => {
   } catch (e) {
     console.error('Lexer error:', e.message);
   }
-}); 
-
+});

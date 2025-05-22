@@ -1,15 +1,8 @@
-// Clase MMU (Memory Management Unit) para simular la gestión de memoria virtual
- 
-/* 
-Por default se usa FIFO (First In First Out) como algoritmo de reemplazo de páginas.
-
-
-*/
-
+// MMU.js
 export default class MMU {
     constructor(algorithmName = 'FIFO') {
         this.page_size = 4000; // 4KB
-        this.total_ram_pages = 100; // 400KB RAM
+        this.total_ram_pages = 6; // 400KB RAM
         this.ram = []; // páginas en memoria real
         this.virtualMemory = []; // páginas en disco
         this.ptrCounter = 1;
@@ -19,6 +12,18 @@ export default class MMU {
         this.thrashing = 0;
         this.algorithmName = algorithmName;
         this.pageIdCounter = 0;
+
+        // Token stream for OPT algorithm
+        this.tokenStream = [];
+        this.tokenPointer = 0;
+
+        // FIFO queue for page replacement
+        this.fifoQueue = []; 
+    }
+
+    setTokenStream(tokens) {
+        this.tokenStream = tokens;
+        this.tokenPointer = 0;
     }
 
     generatePage(pid, ptr) {
@@ -27,8 +32,8 @@ export default class MMU {
             pid,
             ptr,
             inRAM: false,
-            frame: null, // índice en RAM si está presente
-            lastUsed: this.time,
+            frame: null,
+            lastUsed: null,
         };
     }
 
@@ -56,74 +61,109 @@ export default class MMU {
             page.inRAM = true;
             page.frame = this.ram.length;
             this.ram.push(page);
+            this.fifoQueue.push(page);
             this.time += 1;
+            page.lastUsed = this.time;
         } else {
             const evicted = this.replacePage();
             evicted.inRAM = false;
-            evicted.frame = null;
             this.virtualMemory.push(evicted);
 
             page.inRAM = true;
             page.frame = evicted.frame;
-            this.ram[page.frame] = page;
+            this.ram[evicted.frame] = page;
+            this.fifoQueue.push(page);
+            
 
             this.time += 5;
             this.thrashing += 5;
+
+            page.lastUsed = this.time;
         }
     }
 
-
-    // Reemplaza una página en RAM usando el algoritmo XXXXXXXX
     replacePage() {
         switch (this.algorithmName) {
             case 'FIFO':
                 return this.replaceFIFO();
-            case 'SC':
-                // Implementar SC (Second Chance)
-                break;
-            case 'MRU':
-                // Implementar MRU (Most Recently Used)
-                break;
-            case 'RND':
-                // Implementar RND (Random)
-                break;
+            case 'OPT':
+                return this.replaceOPT();
             default:
                 throw new Error(`Unknown algorithm: ${this.algorithmName}`);
         }
     }
 
-    // Reemplaza la página más antigua (FIFO)
     replaceFIFO() {
-        const page = this.ram[0];
-        this.ram.shift();
-        return page;
+        const evicted = this.fifoQueue.shift();
+        const index = this.ram.findIndex(p => p.pageId === evicted.pageId);
+        if (index !== -1) {
+            this.ram[index] = null; // Mark frame for reuse
+            evicted.frame = index;
+        }
+        return evicted;
     }
 
-    // Simula el uso de un puntero, cargando las páginas en RAM si es necesario
+    replaceOPT() {
+        let farthestUse = -1;
+        let indexToReplace = -1;
+
+        for (let i = 0; i < this.ram.length; i++) {
+            const page = this.ram[i];
+            let found = false;
+
+            for (let j = this.tokenPointer; j < this.tokenStream.length; j++) {
+                const token = this.tokenStream[j];
+                if (token.type === 'use') {
+                    const targetPtr = token.args[0];
+                    const target = this.memoryMap.get(targetPtr);
+                    if (!target) continue;
+
+                    if (target.pages.some(p => p.pageId === page.pageId)) {
+                        const distance = j - this.tokenPointer;
+                        if (distance > farthestUse) {
+                            farthestUse = distance;
+                            indexToReplace = i;
+                        }
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!found) {
+                return this.ram[i];
+            }
+        }
+
+        return this.ram[indexToReplace];
+    }
+
     usePage(ptr) {
         const entry = this.memoryMap.get(ptr);
         if (!entry) throw new Error(`Invalid ptr: ${ptr}`);
+
         for (const page of entry.pages) {
             if (!page.inRAM) {
-                // Page fault
                 this.loadPage(page);
             } else {
                 this.time += 1;
                 page.lastUsed = this.time;
             }
         }
+
+        this.tokenPointer++;
     }
 
-    // Elimina un puntero y libera sus páginas de la memoria
     deletePtr(ptr) {
         const entry = this.memoryMap.get(ptr);
         if (!entry) return;
 
         for (const page of entry.pages) {
             if (page.inRAM) {
-                this.ram = this.ram.filter(p => p.id !== page.id);
+                this.ram = this.ram.filter(p => p.pageId !== page.pageId);
+                this.fifoQueue = this.fifoQueue.filter(p => p.pageId !== page.pageId);
             } else {
-                this.virtualMemory = this.virtualMemory.filter(p => p.id !== page.id);
+                this.virtualMemory = this.virtualMemory.filter(p => p.pageId !== page.pageId);
             }
         }
 
@@ -132,8 +172,6 @@ export default class MMU {
         this.symbolTable.set(entry.pid, ptrs.filter(p => p !== ptr));
     }
 
-
-    // Llama a deletePtr para eliminar todas las páginas de un proceso y también elimina el proceso de la tabla de símbolos
     killProcess(pid) {
         const ptrs = this.symbolTable.get(pid) || [];
         for (const ptr of ptrs) {
@@ -142,12 +180,11 @@ export default class MMU {
         this.symbolTable.delete(pid);
     }
 
-    //  Stats en vivo de la simulación en un punto en concreto en formato JSON
     getStats() {
-        const ramUsed = this.ram.length * this.page_size;
+        const ramUsed = this.ram.filter(p => p !== null).length * this.page_size;
         const vramUsed = this.virtualMemory.length * this.page_size;
         const totalSimTime = this.time;
-        // Hay que poner el wasted memory en KB
+
         return {
             runningProcesses: Array.from(this.symbolTable.keys()),
             ram: this.ram,
@@ -161,3 +198,14 @@ export default class MMU {
         };
     }
 }
+
+// Example usage with tokens:
+// import MMU from './MMU.js';
+// const mmu = new MMU('OPT');
+// mmu.setTokenStream(Tokens);
+// Tokens.forEach(t => {
+//   if (t.type === 'new') mmu.allocatePages(t.args[0], t.args[1]);
+//   else if (t.type === 'use') mmu.usePage(t.args[0]);
+//   else if (t.type === 'delete') mmu.deletePtr(t.args[0]);
+//   else if (t.type === 'kill') mmu.killProcess(t.args[0]);
+// });
