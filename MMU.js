@@ -16,7 +16,6 @@ export default class MMU {
         this.tokenStream = [];
         this.tokenPointer = 0;
         this.fifoQueue = []; 
-        this.referenceBits = new Map(); // for Second Chance
     }
 
     setTokenStream(tokens) {
@@ -32,11 +31,10 @@ export default class MMU {
             inRAM: false,
             frame: null,
             lastUsed: null,
+            referenceBit: 1
         };
     }
 
-    // Simulate the allocation of pages in RAM (New operation)
-    // If there is enought space it will not generate a page fault
     allocatePages(pid, size) {
         const numPages = Math.ceil(size / this.page_size);
         const pages = [];
@@ -64,7 +62,7 @@ export default class MMU {
             this.fifoQueue.push(page);
             this.time += 1;
             page.lastUsed = this.time;
-            this.referenceBits.set(page.pageId, 1);
+            page.referenceBit = 1;
         } else {
             const evicted = this.replacePage();
             console.log("Reemplazando:", evicted.pageId)
@@ -75,7 +73,7 @@ export default class MMU {
             page.frame = evicted.frame;
             this.ram[evicted.frame] = page;
             this.fifoQueue.push(page);
-            this.referenceBits.set(page.pageId, 1);
+            page.referenceBit = 1;
 
             this.time += 5;
             this.thrashing += 5;
@@ -94,7 +92,6 @@ export default class MMU {
             default: throw new Error(`Unknown algorithm: ${this.algorithmName}`);
         }
     }
-
 
     replaceFIFO() {
         const evicted = this.fifoQueue.shift();
@@ -161,7 +158,7 @@ export default class MMU {
     replaceSC() {
         while (true) {
             const candidate = this.fifoQueue[0];
-            if (this.referenceBits.get(candidate.pageId) === 0) {
+            if (candidate.referenceBit === 0) {
                 this.fifoQueue.shift();
                 const index = this.ram.findIndex(p => p.pageId === candidate.pageId);
                 if (index !== -1) {
@@ -170,7 +167,7 @@ export default class MMU {
                 }
                 return candidate;
             } else {
-                this.referenceBits.set(candidate.pageId, 0);
+                candidate.referenceBit = 0;
                 this.fifoQueue.push(this.fifoQueue.shift());
             }
         }
@@ -186,7 +183,7 @@ export default class MMU {
             } else {
                 this.time += 1;
                 page.lastUsed = this.time;
-                this.referenceBits.set(page.pageId, 1);
+                page.referenceBit = 1;
             }
         }
 
@@ -201,7 +198,6 @@ export default class MMU {
             if (page.inRAM) {
                 this.ram = this.ram.filter(p => p.pageId !== page.pageId);
                 this.fifoQueue = this.fifoQueue.filter(p => p.pageId !== page.pageId);
-                this.referenceBits.delete(page.pageId);
             } else {
                 this.virtualMemory = this.virtualMemory.filter(p => p.pageId !== page.pageId);
             }
