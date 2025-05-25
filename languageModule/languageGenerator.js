@@ -110,5 +110,3 @@ export async function writeSequenceToFile(P, N, seed) {
   const filePath = path.join(__dirname, '../instrucciones.txt');
   await writeFile(filePath, sequence, 'utf8'); 
 }
-
-

@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="es"></html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROYECTO PROGRAMADO #2</title>
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    
+    <!-- PARTE DE LA SELECCIÓN DE LOS DATOS -->
+    <div id="contPreparacion" class="contenedorPreparacion">
+        <h1 class="tittlePre">VALORES PARA LA SIMULACIÓN</h1>
+    
+        <div class="contenedorDatosGen">
+            <div class="contenedorDatos">
+                <label class="formatLabels" for="idAlg">Seleccione el algoritmo que desea simular:</label>
+                <select name="idAlg" id="idAlg" required class="formatInputs">
+                    <option value="" disabled selected>Elija una opción</option>
+                    <option value="FIFO">FIFO</option>
+                    <option value="SC">SC</option>
+                    <option value="MRU">MRU</option>
+                    <option value="RND">RND</option>
+                </select>
+            </div>
+    
+            <div class="contenedorDatos">
+                <label class="formatLabels">¿Tiene el archivo con las instrucciones para la simulación?:</label>
+                <div>
+                    <button class="formatBtnOpt" onclick="mostrarDivSi()">Sí</button>
+                    <button class="formatBtnOpt" onclick="mostrarDivNo()">No</button>
+                </div>
+            </div>
+    
+            <div id="contNo" class="contenedorNo">
+    
+                <div class="contenedorDatos">
+                    <label class="formatLabels" for="idSemilla">Por favor, digite en formato de número entero la semilla a
+                        utilizar:</label>
+                    <input type="number" id="idSemilla" name="idSemilla" class="formatInputs">
+                </div>
+
+
+                <div class="contenedorDatos">
+                    <label class="formatLabels" for="idNProcesos">Por favor, digite en formato de número entero el número de procesos:</label>
+                    <select name="idNProcesos" id="idNProcesos" required class="formatInputs">
+                        <option value="" disabled selected>Elija una opción</option>
+                        <option value="10">10</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+
+                <div class="contenedorDatos">
+                    <label class="formatLabels" for="idNOperaciones">Por favor, digite en formato de número entero la cantidad de operaciones:</label>
+                    <select name="idNOperaciones" id="idNOperaciones" required class="formatInputs">
+                        <option value="" disabled selected>Elija una opción</option>
+                        <option value="500">500</option>
+                        <option value="1000">1000</option>
+                        <option value="5000">5000</option>
+                    </select>
+                </div>
+
+                <button class="formatBtnDesc" onclick="validarDatosDescarga()">Descargar archivo generado</button>
+    
+            </div>
+    
+            <div id="contSi" class="contenedorSi">
+                <div class="contenedorDatos">
+                    <label class="formatLabels" for="archivoInstrucciones">Por favor, seleccione el archivo para la
+                        simulación en formato .txt:</label>
+                    <input type="file" id="archivoInstrucciones" name="archivoInstrucciones" class="formatInputsA"
+                        accept=".txt" required>
+                </div>
+            </div>
+        </div>
+
+        <button class="formatBtnIS" onclick="validarDatos()">Iniciar simulación</button>
+
+    </div>
+
+
+    <!-- PARTE DE LA SIMULACIÓN -->
+    <div id="contSimulador" class="contenedorSimulacion">
+        
+        <div class="optSuperiores">
+            <button class="formatBtnVolver" onclick="volverPreparacion()">Regresar</button>
+            <div>
+                <button class="formatBtnVolver" onclick="">Pausar</button>
+                <button class="formatBtnVolver" onclick="">Reanudar</button>
+            </div>
+            
+        </div>
+
+        <div class="contenedorMF">
+    
+            <table class="tMemoriaFisica">
+                <thead>
+                    <tr>
+                        <th colspan="100" class="titleTables">RAM - OPT</th>
+                    </tr>
+                </thead>
+    
+                <tbody>
+                    <tr>
+                        <td id="pg0OPT" class="pagesMF"></td>
+                        <td id="pg1OPT" class="pagesMF"></td>
+                        <td id="pg2OPT" class="pagesMF"></td>
+                        <td id="pg3OPT" class="pagesMF"></td>
+                        <td id="pg4OPT" class="pagesMF"></td>
+                        <td id="pg5OPT" class="pagesMF"></td>
+                        <td id="pg6OPT" class="pagesMF"></td>
+                        <td id="pg7OPT" class="pagesMF"></td>
+                        <td id="pg8OPT" class="pagesMF"></td>
+                        <td id="pg9OPT" class="pagesMF"></td>
+                        <td id="pg10OPT" class="pagesMF"></td>
+                        <td id="pg11OPT" class="pagesMF"></td>
+                        <td id="pg12OPT" class="pagesMF"></td>
+                        <td id="pg13OPT" class="pagesMF"></td>
+                        <td id="pg14OPT" class="pagesMF"></td>
+                        <td id="pg15OPT" class="pagesMF"></td>
+                        <td id="pg16OPT" class="pagesMF"></td>
+                        <td id="pg17OPT" class="pagesMF"></td>
+                        <td id="pg18OPT" class="pagesMF"></td>
+                        <td id="pg19OPT" class="pagesMF"></td>
+                        <td id="pg20OPT" class="pagesMF"></td>
+                        <td id="pg21OPT" class="pagesMF"></td>
+                        <td id="pg22OPT" class="pagesMF"></td>
+                        <td id="pg23OPT" class="pagesMF"></td>
+                        <td id="pg24OPT" class="pagesMF"></td>
+                        <td id="pg25OPT" class="pagesMF"></td>
+                        <td id="pg26OPT" class="pagesMF"></td>
+                        <td id="pg27OPT" class="pagesMF"></td>
+                        <td id="pg28OPT" class="pagesMF"></td>
+                        <td id="pg29OPT" class="pagesMF"></td>
+                        <td id="pg30OPT" class="pagesMF"></td>
+                        <td id="pg31OPT" class="pagesMF"></td>
+                        <td id="pg32OPT" class="pagesMF"></td>
+                        <td id="pg33OPT" class="pagesMF"></td>
+                        <td id="pg34OPT" class="pagesMF"></td>
+                        <td id="pg35OPT" class="pagesMF"></td>
+                        <td id="pg36OPT" class="pagesMF"></td>
+                        <td id="pg37OPT" class="pagesMF"></td>
+                        <td id="pg38OPT" class="pagesMF"></td>
+                        <td id="pg39OPT" class="pagesMF"></td>
+                        <td id="pg40OPT" class="pagesMF"></td>
+                        <td id="pg41OPT" class="pagesMF"></td>
+                        <td id="pg42OPT" class="pagesMF"></td>
+                        <td id="pg43OPT" class="pagesMF"></td>
+                        <td id="pg44OPT" class="pagesMF"></td>
+                        <td id="pg45OPT" class="pagesMF"></td>
+                        <td id="pg46OPT" class="pagesMF"></td>
+                        <td id="pg47OPT" class="pagesMF"></td>
+                        <td id="pg48OPT" class="pagesMF"></td>
+                        <td id="pg49OPT" class="pagesMF"></td>
+                        <td id="pg50OPT" class="pagesMF"></td>
+                        <td id="pg51OPT" class="pagesMF"></td>
+                        <td id="pg52OPT" class="pagesMF"></td>
+                        <td id="pg53OPT" class="pagesMF"></td>
+                        <td id="pg54OPT" class="pagesMF"></td>
+                        <td id="pg55OPT" class="pagesMF"></td>
+                        <td id="pg56OPT" class="pagesMF"></td>
+                        <td id="pg57OPT" class="pagesMF"></td>
+                        <td id="pg58OPT" class="pagesMF"></td>
+                        <td id="pg59OPT" class="pagesMF"></td>
+                        <td id="pg60OPT" class="pagesMF"></td>
+                        <td id="pg61OPT" class="pagesMF"></td>
+                        <td id="pg62OPT" class="pagesMF"></td>
+                        <td id="pg63OPT" class="pagesMF"></td>
+                        <td id="pg64OPT" class="pagesMF"></td>
+                        <td id="pg65OPT" class="pagesMF"></td>
+                        <td id="pg66OPT" class="pagesMF"></td>
+                        <td id="pg67OPT" class="pagesMF"></td>
+                        <td id="pg68OPT" class="pagesMF"></td>
+                        <td id="pg69OPT" class="pagesMF"></td>
+                        <td id="pg70OPT" class="pagesMF"></td>
+                        <td id="pg71OPT" class="pagesMF"></td>
+                        <td id="pg72OPT" class="pagesMF"></td>
+                        <td id="pg73OPT" class="pagesMF"></td>
+                        <td id="pg74OPT" class="pagesMF"></td>
+                        <td id="pg75OPT" class="pagesMF"></td>
+                        <td id="pg76OPT" class="pagesMF"></td>
+                        <td id="pg77OPT" class="pagesMF"></td>
+                        <td id="pg78OPT" class="pagesMF"></td>
+                        <td id="pg79OPT" class="pagesMF"></td>
+                        <td id="pg80OPT" class="pagesMF"></td>
+                        <td id="pg81OPT" class="pagesMF"></td>
+                        <td id="pg82OPT" class="pagesMF"></td>
+                        <td id="pg83OPT" class="pagesMF"></td>
+                        <td id="pg84OPT" class="pagesMF"></td>
+                        <td id="pg85OPT" class="pagesMF"></td>
+                        <td id="pg86OPT" class="pagesMF"></td>
+                        <td id="pg87OPT" class="pagesMF"></td>
+                        <td id="pg88OPT" class="pagesMF"></td>
+                        <td id="pg89OPT" class="pagesMF"></td>
+                        <td id="pg90OPT" class="pagesMF"></td>
+                        <td id="pg91OPT" class="pagesMF"></td>
+                        <td id="pg92OPT" class="pagesMF"></td>
+                        <td id="pg93OPT" class="pagesMF"></td>
+                        <td id="pg94OPT" class="pagesMF"></td>
+                        <td id="pg95OPT" class="pagesMF"></td>
+                        <td id="pg96OPT" class="pagesMF"></td>
+                        <td id="pg97OPT" class="pagesMF"></td>
+                        <td id="pg98OPT" class="pagesMF"></td>
+                        <td id="pg99OPT" class="pagesMF"></td>
+                    </tr>
+                </tbody>
+            </table>
+    
+            <table class="tMemoriaFisica">
+                <thead>
+                    <tr>
+                        <th id="algSelect" colspan="100" class="titleTables">RAM - [ALG]</th>
+                    </tr>
+                </thead>
+    
+                <tbody>
+                    <tr>
+                        <td id="pg0ALG" class="pagesMF"></td>
+                        <td id="pg1ALG" class="pagesMF"></td>
+                        <td id="pg2ALG" class="pagesMF"></td>
+                        <td id="pg3ALG" class="pagesMF"></td>
+                        <td id="pg4ALG" class="pagesMF"></td>
+                        <td id="pg5ALG" class="pagesMF"></td>
+                        <td id="pg6ALG" class="pagesMF"></td>
+                        <td id="pg7ALG" class="pagesMF"></td>
+                        <td id="pg8ALG" class="pagesMF"></td>
+                        <td id="pg9ALG" class="pagesMF"></td>
+                        <td id="pg10ALG" class="pagesMF"></td>
+                        <td id="pg11ALG" class="pagesMF"></td>
+                        <td id="pg12ALG" class="pagesMF"></td>
+                        <td id="pg13ALG" class="pagesMF"></td>
+                        <td id="pg14ALG" class="pagesMF"></td>
+                        <td id="pg15ALG" class="pagesMF"></td>
+                        <td id="pg16ALG" class="pagesMF"></td>
+                        <td id="pg17ALG" class="pagesMF"></td>
+                        <td id="pg18ALG" class="pagesMF"></td>
+                        <td id="pg19ALG" class="pagesMF"></td>
+                        <td id="pg20ALG" class="pagesMF"></td>
+                        <td id="pg21ALG" class="pagesMF"></td>
+                        <td id="pg22ALG" class="pagesMF"></td>
+                        <td id="pg23ALG" class="pagesMF"></td>
+                        <td id="pg24ALG" class="pagesMF"></td>
+                        <td id="pg25ALG" class="pagesMF"></td>
+                        <td id="pg26ALG" class="pagesMF"></td>
+                        <td id="pg27ALG" class="pagesMF"></td>
+                        <td id="pg28ALG" class="pagesMF"></td>
+                        <td id="pg29ALG" class="pagesMF"></td>
+                        <td id="pg30ALG" class="pagesMF"></td>
+                        <td id="pg31ALG" class="pagesMF"></td>
+                        <td id="pg32ALG" class="pagesMF"></td>
+                        <td id="pg33ALG" class="pagesMF"></td>
+                        <td id="pg34ALG" class="pagesMF"></td>
+                        <td id="pg35ALG" class="pagesMF"></td>
+                        <td id="pg36ALG" class="pagesMF"></td>
+                        <td id="pg37ALG" class="pagesMF"></td>
+                        <td id="pg38ALG" class="pagesMF"></td>
+                        <td id="pg39ALG" class="pagesMF"></td>
+                        <td id="pg40ALG" class="pagesMF"></td>
+                        <td id="pg41ALG" class="pagesMF"></td>
+                        <td id="pg42ALG" class="pagesMF"></td>
+                        <td id="pg43ALG" class="pagesMF"></td>
+                        <td id="pg44ALG" class="pagesMF"></td>
+                        <td id="pg45ALG" class="pagesMF"></td>
+                        <td id="pg46ALG" class="pagesMF"></td>
+                        <td id="pg47ALG" class="pagesMF"></td>
+                        <td id="pg48ALG" class="pagesMF"></td>
+                        <td id="pg49ALG" class="pagesMF"></td>
+                        <td id="pg50ALG" class="pagesMF"></td>
+                        <td id="pg51ALG" class="pagesMF"></td>
+                        <td id="pg52ALG" class="pagesMF"></td>
+                        <td id="pg53ALG" class="pagesMF"></td>
+                        <td id="pg54ALG" class="pagesMF"></td>
+                        <td id="pg55ALG" class="pagesMF"></td>
+                        <td id="pg56ALG" class="pagesMF"></td>
+                        <td id="pg57ALG" class="pagesMF"></td>
+                        <td id="pg58ALG" class="pagesMF"></td>
+                        <td id="pg59ALG" class="pagesMF"></td>
+                        <td id="pg60ALG" class="pagesMF"></td>
+                        <td id="pg61ALG" class="pagesMF"></td>
+                        <td id="pg62ALG" class="pagesMF"></td>
+                        <td id="pg63ALG" class="pagesMF"></td>
+                        <td id="pg64ALG" class="pagesMF"></td>
+                        <td id="pg65ALG" class="pagesMF"></td>
+                        <td id="pg66ALG" class="pagesMF"></td>
+                        <td id="pg67ALG" class="pagesMF"></td>
+                        <td id="pg68ALG" class="pagesMF"></td>
+                        <td id="pg69ALG" class="pagesMF"></td>
+                        <td id="pg70ALG" class="pagesMF"></td>
+                        <td id="pg71ALG" class="pagesMF"></td>
+                        <td id="pg72ALG" class="pagesMF"></td>
+                        <td id="pg73ALG" class="pagesMF"></td>
+                        <td id="pg74ALG" class="pagesMF"></td>
+                        <td id="pg75ALG" class="pagesMF"></td>
+                        <td id="pg76ALG" class="pagesMF"></td>
+                        <td id="pg77ALG" class="pagesMF"></td>
+                        <td id="pg78ALG" class="pagesMF"></td>
+                        <td id="pg79ALG" class="pagesMF"></td>
+                        <td id="pg80ALG" class="pagesMF"></td>
+                        <td id="pg81ALG" class="pagesMF"></td>
+                        <td id="pg82ALG" class="pagesMF"></td>
+                        <td id="pg83ALG" class="pagesMF"></td>
+                        <td id="pg84ALG" class="pagesMF"></td>
+                        <td id="pg85ALG" class="pagesMF"></td>
+                        <td id="pg86ALG" class="pagesMF"></td>
+                        <td id="pg87ALG" class="pagesMF"></td>
+                        <td id="pg88ALG" class="pagesMF"></td>
+                        <td id="pg89ALG" class="pagesMF"></td>
+                        <td id="pg90ALG" class="pagesMF"></td>
+                        <td id="pg91ALG" class="pagesMF"></td>
+                        <td id="pg92ALG" class="pagesMF"></td>
+                        <td id="pg93ALG" class="pagesMF"></td>
+                        <td id="pg94ALG" class="pagesMF"></td>
+                        <td id="pg95ALG" class="pagesMF"></td>
+                        <td id="pg96ALG" class="pagesMF"></td>
+                        <td id="pg97ALG" class="pagesMF"></td>
+                        <td id="pg98ALG" class="pagesMF"></td>
+                        <td id="pg99ALG" class="pagesMF"></td>
+                    </tr>
+                </tbody>
+            </table>
+    
+        </div>
+    
+        <div class="contenedorProGen">
+    
+            <div class="contenedorPro">
+                <table class="tMMU">
+                    <thead>
+                        <tr>
+                            <th colspan="8" class="titleTables">RAM - OPT</th>
+                        </tr>
+    
+                        <tr>
+                            <th class="subtitleTablesMMU">PAGE ID</th>
+                            <th class="subtitleTablesMMU">PID</th>
+                            <th class="subtitleTablesMMU">LOADED</th>
+                            <th class="subtitleTablesMMU">L-ADDR</th>
+                            <th class="subtitleTablesMMU">M-ADDR</th>
+                            <th class="subtitleTablesMMU">D-ADDR</th>
+                            <th class="subtitleTablesMMU">LOADED-T</th>
+                            <th class="subtitleTablesMMU">MARK</th>
+                        </tr>
+                    </thead>
+                </table>
+    
+                <div class="scrollBody">
+                    <table class="tMMU">
+                        <tbody id="tablaBodyOPT">
+                            <tr>
+                                <td id="pr1OPT" class="processMMU">1</td>
+                                <td id="pr2OPT" class="processMMU">2</td>
+                                <td id="pr3OPT" class="processMMU">3</td>
+                                <td id="pr4OPT" class="processMMU">4</td>
+                                <td id="pr5OPT" class="processMMU">5</td>
+                                <td id="pr6OPT" class="processMMU">6</td>
+                                <td id="pr7OPT" class="processMMU">7</td>
+                                <td id="pr8OPT" class="processMMU">8</td>
+                            </tr>
+                        </tbody>
+    
+                    </table>
+                </div>
+            </div>
+    
+            <div class="contenedorPro">
+                <table class="tMMU">
+                    <thead>
+                        <tr>
+                            <th id="algSelectMMU" colspan="8" class="titleTables">RAM - [ALG]</th>
+                        </tr>
+    
+                        <tr>
+                            <th class="subtitleTablesMMU">PAGE ID</th>
+                            <th class="subtitleTablesMMU">PID</th>
+                            <th class="subtitleTablesMMU">LOADED</th>
+                            <th class="subtitleTablesMMU">L-ADDR</th>
+                            <th class="subtitleTablesMMU">M-ADDR</th>
+                            <th class="subtitleTablesMMU">D-ADDR</th>
+                            <th class="subtitleTablesMMU">LOADED-T</th>
+                            <th class="subtitleTablesMMU">MARK</th>
+                        </tr>
+                    </thead>
+                </table>
+    
+                <div class="scrollBody">
+                    <table class="tMMU">
+                        <tbody id="tablaBodyALG">
+                            <tr>
+                                <td id="pr1ALG" class="processMMU">1</td>
+                                <td id="pr2ALG" class="processMMU">2</td>
+                                <td id="pr3ALG" class="processMMU">3</td>
+                                <td id="pr4ALG" class="processMMU">4</td>
+                                <td id="pr5ALG" class="processMMU">5</td>
+                                <td id="pr6ALG" class="processMMU">6</td>
+                                <td id="pr7ALG" class="processMMU">7</td>
+                                <td id="pr8ALG" class="processMMU">8</td>
+                            </tr>
+                        </tbody>
+    
+                    </table>
+                </div>
+            </div>
+    
+        </div>
+    
+        <div class="contenedorResumenGen">
+    
+    
+            <div class="contenedorResumen">
+                <table id="tProSim" class="tResume">
+                    <thead>
+                        <tr>
+                            <th class="subtitleTablesResumen">PROCESSES</th>
+                            <th class="subtitleTablesResumen">SIM-TIME</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="idProcesses" class="contentTablesResumen"></td>
+                            <td id="idSimTime" class="contentTablesResumen"></td>
+                        </tr>
+                    </tbody>
+                </table>
+    
+                <table id="tRam" class="tResume">
+                    <thead>
+                        <tr>
+                            <th class="subtitleTablesResumen">RAM KB</th>
+                            <th class="subtitleTablesResumen">RAM %</th>
+                            <th class="subtitleTablesResumen">V-RAM KB</th>
+                            <th class="subtitleTablesResumen">V-RAM %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="idRamKB" class="contentTablesResumen"></td>
+                            <td id="idRamPor" class="contentTablesResumen"></td>
+                            <td id="idVRamKB" class="contentTablesResumen"></td>
+                            <td id="idVRamPor" class="contentTablesResumen"></td>
+                        </tr>
+                    </tbody>
+                </table>
+    
+                <table id="tResultados" class="tResume">
+                    <thead>
+                        <tr>
+                            <th colspan="2" class="subtitleTablesResumen">PAGES</th>
+                            <th colspan="2" class="subtitleTablesResumen">THRASHING</th>
+                            <th class="subtitleTablesResumen">FRAGMENTACIÓN</th>
+                        </tr>
+    
+                        <tr>
+                            <th class="ssubtitleTablesResumen">LOADED</th>
+                            <th class="ssubtitleTablesResumen">UNLOADED</th>
+                            <th id="idThrasS" class="contentTablesResumen"></th>
+                            <th id="idThrasP" class="contentTablesResumen"></th>
+                            <th id="idFrag" class="contentTablesResumen"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="idLoa" class="contentTablesResumen"></td>
+                            <td id="idUnloa" class="contentTablesResumen"></td>
+                            <td class="omitir"></td>
+                            <td class="omitir"></td>
+                            <td class="omitir"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+    
+    
+            <div class="contenedorResumen">
+                <table id="tProSim" class="tResume">
+                    <thead>
+                        <tr>
+                            <th class="subtitleTablesResumen">PROCESSES</th>
+                            <th class="subtitleTablesResumen">SIM-TIME</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="idProcesses" class="contentTablesResumen"></td>
+                            <td id="idSimTime" class="contentTablesResumen"></td>
+                        </tr>
+                    </tbody>
+                </table>
+    
+                <table id="tRam" class="tResume">
+                    <thead>
+                        <tr>
+                            <th class="subtitleTablesResumen">RAM KB</th>
+                            <th class="subtitleTablesResumen">RAM %</th>
+                            <th class="subtitleTablesResumen">V-RAM KB</th>
+                            <th class="subtitleTablesResumen">V-RAM %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="idRamKB" class="contentTablesResumen"></td>
+                            <td id="idRamPor" class="contentTablesResumen"></td>
+                            <td id="idVRamKB" class="contentTablesResumen"></td>
+                            <td id="idVRamPor" class="contentTablesResumen"></td>
+                        </tr>
+                    </tbody>
+                </table>
+    
+                <table id="tResultados" class="tResume">
+                    <thead>
+                        <tr>
+                            <th colspan="2" class="subtitleTablesResumen">PAGES</th>
+                            <th colspan="2" class="subtitleTablesResumen">THRASHING</th>
+                            <th class="subtitleTablesResumen">FRAGMENTACIÓN</th>
+                        </tr>
+    
+                        <tr>
+                            <th class="ssubtitleTablesResumen">LOADED</th>
+                            <th class="ssubtitleTablesResumen">UNLOADED</th>
+                            <th id="idThrasS" class="contentTablesResumen"></th>
+                            <th id="idThrasP" class="contentTablesResumen"></th>
+                            <th id="idFrag" class="contentTablesResumen"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="idLoa" class="contentTablesResumen"></td>
+                            <td id="idUnloa" class="contentTablesResumen"></td>
+                            <td class="omitir"></td>
+                            <td class="omitir"></td>
+                            <td class="omitir"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+    
+    
+        </div>
+    
+    </div>
+
+    <script src="./app.js"></script>
+</body> 
+</html>

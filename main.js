@@ -7,7 +7,7 @@ async function main() {
 
     const mmu = new MMU('SC'); // Initialize the MMU with FIFO algorithm
 
-    await writeSequenceToFile(10, 100, 12345); // Example usage
+    //await writeSequenceToFile(10, 500, 12345); // Example usage
 
     const tokens = await readTokensFromFile(); // Read and tokenize the instructions from the file
 

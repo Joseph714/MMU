@@ -1,0 +1,319 @@
+body{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.contenedorSimulacion{
+    display: flex;
+    flex-direction: column;
+
+    border: 0px solid red;
+}
+
+.formatBtnVolver{
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+
+    background-color: #E3E3E3;
+    border: none;
+    border-radius: 5px;
+
+    width: 150px;
+    cursor: pointer;
+    margin-top: 30px;
+}
+
+.formatBtnVolver:hover{
+    background-color: #969696;
+}
+
+/*PARTE DE LA MEMORIA FÍSICA*/
+#titleMF{
+    font-family: "Poppins", sans-serif;
+    font-style: italic;
+    font-size: 30px;
+}
+
+.contenedorMF{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: auto;
+    height: auto;
+    margin-top: 50px;
+}
+
+.tMemoriaFisica{
+    border: 0px solid #969696;
+    height: 50px;
+    width: 1200px;
+    margin-bottom: 20px;
+    border-collapse: collapse;
+}
+
+.pagesMF{
+    border: 1px solid #969696;
+    width: 12 px;
+}
+
+.titleTables{
+    font-family: "Poppins", sans-serif;
+    font-weight: bold;
+    border: 1px solid #969696;
+    background-color: #969696;
+}
+
+
+/*PARTE DE LOS DETALLES DE LOS PROCESOS*/
+.contenedorProGen{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    width: 1200px;
+    height: auto;
+    margin-bottom: 50px;
+}
+
+.contenedorPro{
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+
+    width: 567px;
+    height: auto;
+}
+
+.tMMU{
+    width: 550px;
+    border-collapse: collapse;
+}
+
+.subtitleTablesMMU {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+
+    width: 68px;
+    border: 1px solid #969696;
+    background-color: #E3E3E3;
+}
+
+.processMMU{
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+
+    width: 68px;
+    border: 1px solid #969696;
+}
+
+.scrollBody{
+    height: 240px;
+    width: 567px;
+    overflow-y: auto;
+}
+
+
+
+/*PARTE DE LOS DATOS RESUMEN*/
+.contenedorResumenGen{
+    display: flex;
+    justify-content: space-around;
+
+    width: 1200px;
+    height: auto;
+    margin-bottom: 50px;
+}
+
+.contenedorResumen{
+    display: flex;
+    flex-direction: column;
+
+    width: 400px;
+    height: auto;
+}
+
+.tResume{
+    width: 400px;
+    border-collapse: collapse;
+    margin-bottom: 20PX;
+}
+
+.subtitleTablesResumen {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+
+    width: 400px;
+    border: 1px solid #969696;
+    background-color: #969696;
+}
+
+.ssubtitleTablesResumen {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+
+    width: 400px;
+    border: 1px solid #969696;
+    background-color: #E3E3E3;
+}
+
+.contentTablesResumen{
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    height: 20px;
+
+    border: 1px solid #969696;
+}
+
+#idThrasS, #idThrasP, #idFrag{
+    border-bottom: white;
+}
+
+.omitir{
+    height: 20px;
+    border: 1px solid #969696;
+    border-top: white;
+}
+
+
+
+/*PARTE DE LA PREPARACION*/
+.contenedorPreparacion{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 600px;
+    height: 500px;
+
+    margin-top: 50px;
+}
+
+.tittlePre{
+    font-family: "Poppins", sans-serif;
+    font-weight: 800;
+    font-size: 30px;
+    height: 20px;
+
+    color: #6e6e6e;
+    margin-bottom: 40px;
+}
+
+.contenedorDatosGen{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: left;
+}
+
+.contenedorDatos{
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 10px;
+}
+
+.formatLabels{
+    display: flex;
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-size: 10px;
+
+    width: 380px;
+    margin-right: 5px;
+}
+
+.formatInputs{
+    font-family: "Poppins", sans-serif;
+    background-color: #E3E3E3;
+    font-size: 10px;
+
+    border: none;
+    border-radius: 5px;
+    width: 150px;
+}
+
+.formatInputsA{
+    display: block;
+    font-family: "Poppins", sans-serif;
+    background-color: #E3E3E3;
+    font-size: 10px;
+    width: 150px;
+}
+
+.formatBtnIS{
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+
+    background-color: #E3E3E3;
+    border: none;
+    border-radius: 5px;
+
+    width: 200px;
+    cursor: pointer;
+    margin-top: 30px;
+}
+
+.formatBtnIS:hover{
+    background-color: #969696;
+}
+
+.formatBtnOpt{
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+
+    width: 74px;
+    background-color: #E3E3E3;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.formatBtnOpt:hover{
+    background-color: #969696;
+}
+
+.contenedorNo{
+    display: none;
+    flex-direction: column;
+}
+
+.contenedorSi{
+    display: none;
+    flex-direction: column;
+}
+
+.formatBtnDesc{
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+
+    background-color: #969696;
+    border: none;
+    border-radius: 5px;
+
+    width: 200px;
+    height: 30px;
+    cursor: pointer;
+    margin-top: 30px;
+    align-self: center;
+}
+
+.formatBtnDesc:hover{
+    background-color: #6e6e6e;
+}
+
+
+/*PARTE DE LOS BOTONES DE LOS ENCABEZADOS*/
+.optSuperiores{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
