@@ -32,6 +32,8 @@ class MMU {
         this.tokenStream = [];
         this.tokenPointer = 0;
         this.fifoQueue = []; 
+        this.loadedCount   = 0;
+        this.unloadedCount = 0;
     }
 
     setTokenStream(tokens) {
@@ -47,7 +49,7 @@ class MMU {
             inRAM: false,
             frame: null,
             lastUsed: null,
-            referenceBit: 1
+            referenceBit: 0
         };
         return page;
     }
@@ -72,6 +74,7 @@ class MMU {
     }
 
     loadPage(page) {
+        this.loadedCount++;
         if (this.ram.length < this.total_ram_pages) {
             page.inRAM = true;
             page.frame = this.ram.length;
@@ -82,6 +85,7 @@ class MMU {
             page.referenceBit = 1;
         } else {
             const evicted = this.replacePage();
+            this.unloadedCount++;
             console.log("Reemplazando:", evicted.pageId)
             evicted.inRAM = false;
             this.virtualMemory.push(evicted);
@@ -203,8 +207,7 @@ class MMU {
                 page.referenceBit = 1;
             }
         }
-
-        this.tokenPointer++;
+        return ptr;
     }
 
     deletePtr(ptr) {
@@ -247,6 +250,7 @@ class MMU {
         return {
             runningProcesses: Array.from(this.symbolTable.keys()),
             ram: this.ram,
+            virtualMemory: this.virtualMemory,
             ramUsedKB: ramUsed / 1000,
             ramUsedPercent: (ramUsed / (this.total_ram_pages * this.page_size)) * 100,
             vramUsedKB: vramUsed / 1000,
@@ -254,7 +258,9 @@ class MMU {
             time: totalSimTime,
             thrashing: this.thrashing,
             thrashingPercent: (this.thrashing / totalSimTime) * 100,
-            wastedKB: wastedMemory / 1000,
+            wastedKB: wastedMemory / 1024,
+            pagesLoaded: this.loadedCount,
+            pagesUnloaded: this.unloadedCount
         };
     }
 }
@@ -558,21 +564,27 @@ async function procesarTokensConRetraso(mmuA, mmuB, tokens, delay) {
             mmuB.killProcess(pid);
         }
 
+        mmuA.tokenPointer++;
+        mmuB.tokenPointer++;
+
         actualizarResumen(mmuA.getStats(), "ALG");
         actualizarResumen(mmuB.getStats(), "OPT");
 
         // Clona el contenido real de RAM en ese instante
-        const snapshotRamA = mmuA.getStats().ram.map(p => p ? { ...p } : null);
-        const snapshotRamB = mmuB.getStats().ram.map(p => p ? { ...p } : null);
+        // const snapshotRamA = mmuA.getStats().ram.map(p => p ? { ...p } : null);
+        // const snapshotRamB = mmuB.getStats().ram.map(p => p ? { ...p } : null);
 
-        console.log(">> [SNAPSHOT FIFO]:", snapshotRamA);
-        console.log(`>> [${mmuA.algorithmName}] Running Processes:`, mmuA.getStats().runningProcesses);
+        // console.log(">> [SNAPSHOT FIFO]:", snapshotRamA);
+        // console.log(`>> [${mmuA.algorithmName}] Running Processes:`, mmuA.getStats().runningProcesses);
 
-        console.log(">> [SNAPSHOT OPT]:", snapshotRamB);
-        console.log(`>> [${mmuB.algorithmName}] Running Processes:`, mmuB.getStats().runningProcesses);
+        // console.log(">> [SNAPSHOT OPT]:", snapshotRamB);
+        // console.log(`>> [${mmuB.algorithmName}] Running Processes:`, mmuB.getStats().runningProcesses);
 
         await sleep(delay);
     }
+
+    console.log(mmuA.getStats());
+    console.log(mmuB.getStats());
 }
 
 const pidColors = {};
@@ -581,7 +593,7 @@ async function hacerSimulacion(tokens){
     const algoritmo = document.getElementById("idAlg").value;
     const mmuA = new MMU(algoritmo);
     const mmuO = new MMU('OPT');
-    await procesarTokensConRetraso(mmuA, mmuO, tokens, 1); 
+    await procesarTokensConRetraso(mmuA, mmuO, tokens, 100); 
 }
 
 function pintarPaginas(pages, tipo) {
@@ -622,7 +634,7 @@ function renderTablaMMU(pages, tipo) {
             <td class="processMMU">${page.inRAM ? page.frame : '...'}</td>
             <td class="processMMU">${!page.inRAM ? (page.frame ?? '...') : ''}</td>
             <td class="processMMU">${page.lastUsed !== null ? page.lastUsed + 's' : ''}</td>
-            <td class="processMMU">...</td>
+            <td class="processMMU">${page.referenceBit}</td>
         `;
 
         row.style.backgroundColor = color;
@@ -667,8 +679,8 @@ function actualizarResumen(stats, tipo) {
     document.getElementById("idVRamPor" + tipo).textContent = stats.vramUsedPercent.toFixed(0) + "%";
 
     // PAGES
-    const loaded = stats.ram.filter(p => p !== null).length;
-    const unloaded = stats.virtualMemory?.length || 0;
+    const loaded = stats.pagesLoaded;
+    const unloaded = stats.pagesUnloaded;
 
     document.getElementById("idLoa" + tipo).textContent = loaded;
     document.getElementById("idUnloa" + tipo).textContent = unloaded;
