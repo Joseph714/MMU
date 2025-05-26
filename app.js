@@ -36,6 +36,21 @@ class MMU {
         this.unloadedCount = 0;
     }
 
+    reset() {
+        this.ram = [];
+        this.virtualMemory = [];
+        this.memoryMap.clear();
+        this.symbolTable.clear();
+        this.time = 0;
+        this.thrashing = 0;
+        this.loadedCount = 0;
+        this.unloadedCount = 0;
+        this.pageIdCounter = 0;
+        this.tokenStream = [];
+        this.tokenPointer = 0;
+        this.fifoQueue = [];
+    }
+
     setTokenStream(tokens) {
         this.tokenStream = tokens;
         this.tokenPointer = 0;
@@ -298,7 +313,7 @@ function generateSequence(P, N, seed) {
     const canDelete = process.pointers.length > 0;
     const canKill = process.created && !process.terminated;
 
-    const shouldKill = canKill && rand() < 0.025;
+    const shouldKill = canKill && rand() < 0.005;
 
     if (shouldKill) {
       totalOperations.push(`kill(${pid})`);
@@ -392,26 +407,6 @@ function downloadInstructions(instructionLines, filename = "instrucciones.txt") 
   URL.revokeObjectURL(url);
 }
 
-
-function main() {
-  const mmu = new MMU('SC');
-  const sequence = generateSequence(5, 50, 12345);
-  downloadInstructions(sequence);
-  const input = sequence.join('\n');
-  const tokens = lexer(input);
-
-  tokens.forEach(token => {
-    if (token.type === 'new') mmu.allocatePages(token.args[0], token.args[1]);
-    else if (token.type === 'use') mmu.usePage(token.args[0]);
-    else if (token.type === 'delete') mmu.deletePtr(token.args[0]);
-    else if (token.type === 'kill') mmu.killProcess(token.args[0]);
-    console.log("Estado:", mmu.getStats());
-  });
-
-  console.log("Simulación finalizada.");
-}
-
-
 function mostrarDivSi() {
     const divSi = document.getElementById("contSi");
     const divNo = document.getElementById("contNo");
@@ -427,13 +422,7 @@ function mostrarDivNo() {
 }
 
 function volverPreparacion() {
-    const divSim = document.getElementById("contSimulador");
-    const divPre = document.getElementById("contPreparacion");
-    divSim.style.display = "none";
-    divPre.style.display = "flex";
-
-    resetearSimulacion("OPT");
-    resetearSimulacion("ALG");
+    window.location.reload();  
 }
 
 function validarDatosDescarga() {
@@ -593,7 +582,9 @@ async function hacerSimulacion(tokens){
     const algoritmo = document.getElementById("idAlg").value;
     const mmuA = new MMU(algoritmo);
     const mmuO = new MMU('OPT');
-    await procesarTokensConRetraso(mmuA, mmuO, tokens, 100); 
+    mmuO.setTokenStream(tokens);
+    
+    await procesarTokensConRetraso(mmuA, mmuO, tokens, 50);
 }
 
 function pintarPaginas(pages, tipo) {
@@ -686,8 +677,27 @@ function actualizarResumen(stats, tipo) {
     document.getElementById("idUnloa" + tipo).textContent = unloaded;
 
     // THRASHING
-    document.getElementById("idThrasS" + tipo).textContent = stats.thrashing + "s";
-    document.getElementById("idThrasP" + tipo).textContent = stats.thrashingPercent.toFixed(0) + "%";
+    const cellThrashingTime = document.getElementById(`idThrasS${tipo}`);
+    const cellThrashingPct = document.getElementById(`idThrasP${tipo}`);
+    cellThrashingTime.textContent = stats.thrashing + "s";
+    cellThrashingPct.textContent = stats.thrashingPercent.toFixed(0) + "%";
+
+    if (stats.thrashingPercent >= 50) {
+        document.getElementById("idPintar1").style.backgroundColor = "#ff6363";
+        document.getElementById("idPintar2").style.backgroundColor = "#ff6363";
+        document.getElementById("idPintar3").style.backgroundColor = "#ff6363";
+        document.getElementById("idPintar4").style.backgroundColor = "#ff6363";
+        cellThrashingTime.style.backgroundColor = "#ff6363";
+        cellThrashingPct.style.backgroundColor = "#ff6363";
+        
+    } else {
+        document.getElementById("idPintar1").style.backgroundColor = "";
+        document.getElementById("idPintar2").style.backgroundColor = "";
+        document.getElementById("idPintar3").style.backgroundColor = "";
+        document.getElementById("idPintar4").style.backgroundColor = "";
+        cellThrashingTime.style.backgroundColor = "";
+        cellThrashingPct.style.backgroundColor = "";
+    }
 
     // FRAGMENTACIÓN
     document.getElementById("idFrag" + tipo).textContent = stats.wastedKB.toFixed(0) + "KB";
@@ -697,27 +707,28 @@ function resetearSimulacion(tipo) {
     // 1. Limpiar celdas de RAM
     for (let i = 0; i < 100; i++) {
         const celda = document.getElementById(`pg${i}${tipo}`);
-        if (celda) {
-            celda.style.backgroundColor = "";
-        }
+        if (celda) celda.style.backgroundColor = "";
     }
 
     // 2. Limpiar tabla de páginas MMU
     const tabla = document.getElementById(`tablaBody${tipo}`);
-    if (tabla) {
-        tabla.innerHTML = "";
-    }
+    if (tabla) tabla.innerHTML = "";
 
-    // 3. Limpiar resumen
+    // 3. Limpiar resumen de valores
     const resumenIds = [
         "idProcesses", "idSimTime",
         "idRamKB", "idRamPor", "idVRamKB", "idVRamPor",
         "idLoa", "idUnloa", "idThrasS", "idThrasP", "idFrag"
     ];
-
     for (const id of resumenIds) {
         const elem = document.getElementById(id + tipo);
-        if (elem) elem.textContent = "";
+        if (elem) {
+            elem.textContent = "";
+            // **Quitamos aquí cualquier clase de alerta**:
+            elem.classList.remove("high-thrash");
+            // **Y limpiamos estilo en línea por si usaste style.backgroundColor**
+            elem.style.backgroundColor = "";
+        }
     }
 
     // 4. (opcional) Limpiar celdas de procesos por PID
