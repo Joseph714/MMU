@@ -179,7 +179,7 @@ body{
 .omitir{
     height: 20px;
     border: 1px solid #969696;
-    border-top: white;
+    border-top: none;
 }
 
 
@@ -316,4 +316,9 @@ body{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+
+
+#idThrasSALG, #idThrasPALG, #idFragALG, #idThrasSOPT, #idThrasPOPT, #idFragOPT{
+    border-bottom: none;
 }

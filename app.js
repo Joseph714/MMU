@@ -425,6 +425,9 @@ function volverPreparacion() {
     const divPre = document.getElementById("contPreparacion");
     divSim.style.display = "none";
     divPre.style.display = "flex";
+
+    resetearSimulacion("OPT");
+    resetearSimulacion("ALG");
 }
 
 function validarDatosDescarga() {
@@ -525,15 +528,38 @@ async function procesarTokensConRetraso(mmuA, mmuB, tokens, delay) {
             renderTablaMMU(mmuB.getStats().ram.filter(p => p), 'OPT');
 
         } else if (token.type === 'use') {
-            mmuA.usePage(token.args[0]);
-            mmuB.usePage(token.args[0]);
+            const ptrA = mmuA.usePage(token.args[0]);
+            const ptrB = mmuB.usePage(token.args[0]);
+
+            // Obtener las páginas recién asignadas
+            const pagesA = mmuA.memoryMap.get(ptrA)?.pages || [];
+            const pagesB = mmuB.memoryMap.get(ptrB)?.pages || [];
+
+            // Refrescar tabla y RAM visual para ALG y OPT
+            pintarPaginas(pagesA, "ALG");
+            pintarPaginas(pagesB, "OPT");
+            renderTablaMMU(mmuA.getStats().ram.filter(p => p), 'ALG');
+            renderTablaMMU(mmuB.getStats().ram.filter(p => p), 'OPT');
+
         } else if (token.type === 'delete') {
             mmuA.deletePtr(token.args[0]);
             mmuB.deletePtr(token.args[0]);
+
+            renderTablaMMU(mmuA.getStats().ram.filter(p => p), 'ALG');
+            renderTablaMMU(mmuB.getStats().ram.filter(p => p), 'OPT');
+
         } else if (token.type === 'kill') {
-            mmuA.killProcess(token.args[0]);
-            mmuB.killProcess(token.args[0]);
+            const pid = token.args[0];
+
+            limpiarPaginasPorPID(mmuA, pid, "ALG");
+            limpiarPaginasPorPID(mmuB, pid, "OPT");
+
+            mmuA.killProcess(pid);
+            mmuB.killProcess(pid);
         }
+
+        actualizarResumen(mmuA.getStats(), "ALG");
+        actualizarResumen(mmuB.getStats(), "OPT");
 
         // Clona el contenido real de RAM en ese instante
         const snapshotRamA = mmuA.getStats().ram.map(p => p ? { ...p } : null);
@@ -555,7 +581,7 @@ async function hacerSimulacion(tokens){
     const algoritmo = document.getElementById("idAlg").value;
     const mmuA = new MMU(algoritmo);
     const mmuO = new MMU('OPT');
-    await procesarTokensConRetraso(mmuA, mmuO, tokens, 2000); 
+    await procesarTokensConRetraso(mmuA, mmuO, tokens, 1); 
 }
 
 function pintarPaginas(pages, tipo) {
@@ -584,6 +610,7 @@ function renderTablaMMU(pages, tipo) {
 
     for (const page of pages) {
         const row = document.createElement("tr");
+        row.id = `row_pg${page.pid}${tipo}`;
 
         const color = pidColors[page.pid] || "#ffffff";
 
@@ -600,5 +627,90 @@ function renderTablaMMU(pages, tipo) {
 
         row.style.backgroundColor = color;
         tbody.appendChild(row);
+    }
+}
+
+function limpiarPaginas(pages, tipo) {
+    for (const page of pages) {
+        const celda = document.getElementById(`pg${page.pageId}${tipo}`);
+        if (celda) celda.style.backgroundColor = ''; // Limpia color
+    }
+}
+
+function limpiarPaginasPorPID(mmu, pid, tipo) {
+    const ptrs = mmu.symbolTable.get(pid) || [];
+
+    for (const ptr of ptrs) {
+        const pages = mmu.memoryMap.get(ptr)?.pages || [];
+
+        for (const page of pages) {
+            // Quitar color de RAM
+            const celda = document.getElementById(`pg${page.pageId}${tipo}`);
+            if (celda) celda.style.backgroundColor = "";
+
+            // Eliminar fila de tabla
+            const fila = document.getElementById(`row_pg${pid}${tipo}`);
+            if (fila) fila.remove();
+        }
+    }
+}
+
+function actualizarResumen(stats, tipo) {
+    // PROCESSES y SIM-TIME
+    document.getElementById("idProcesses" + tipo).textContent = stats.runningProcesses.length;
+    document.getElementById("idSimTime" + tipo).textContent = stats.time + "s";
+
+    // RAM y VRAM
+    document.getElementById("idRamKB" + tipo).textContent = stats.ramUsedKB.toFixed(1) + " KB";
+    document.getElementById("idRamPor" + tipo).textContent = stats.ramUsedPercent.toFixed(0) + "%";
+    document.getElementById("idVRamKB" + tipo).textContent = stats.vramUsedKB.toFixed(1) + " KB";
+    document.getElementById("idVRamPor" + tipo).textContent = stats.vramUsedPercent.toFixed(0) + "%";
+
+    // PAGES
+    const loaded = stats.ram.filter(p => p !== null).length;
+    const unloaded = stats.virtualMemory?.length || 0;
+
+    document.getElementById("idLoa" + tipo).textContent = loaded;
+    document.getElementById("idUnloa" + tipo).textContent = unloaded;
+
+    // THRASHING
+    document.getElementById("idThrasS" + tipo).textContent = stats.thrashing + "s";
+    document.getElementById("idThrasP" + tipo).textContent = stats.thrashingPercent.toFixed(0) + "%";
+
+    // FRAGMENTACIÓN
+    document.getElementById("idFrag" + tipo).textContent = stats.wastedKB.toFixed(0) + "KB";
+}
+
+function resetearSimulacion(tipo) {
+    // 1. Limpiar celdas de RAM
+    for (let i = 0; i < 100; i++) {
+        const celda = document.getElementById(`pg${i}${tipo}`);
+        if (celda) {
+            celda.style.backgroundColor = "";
+        }
+    }
+
+    // 2. Limpiar tabla de páginas MMU
+    const tabla = document.getElementById(`tablaBody${tipo}`);
+    if (tabla) {
+        tabla.innerHTML = "";
+    }
+
+    // 3. Limpiar resumen
+    const resumenIds = [
+        "idProcesses", "idSimTime",
+        "idRamKB", "idRamPor", "idVRamKB", "idVRamPor",
+        "idLoa", "idUnloa", "idThrasS", "idThrasP", "idFrag"
+    ];
+
+    for (const id of resumenIds) {
+        const elem = document.getElementById(id + tipo);
+        if (elem) elem.textContent = "";
+    }
+
+    // 4. (opcional) Limpiar celdas de procesos por PID
+    for (let pid = 1; pid <= 8; pid++) {
+        const pr = document.getElementById(`pr${pid}${tipo}`);
+        if (pr) pr.textContent = "";
     }
 }

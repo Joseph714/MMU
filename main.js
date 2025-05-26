@@ -5,7 +5,7 @@ import { readTokensFromFile } from './languageModule/lexer.js';
 async function main() {
 
 
-    const mmu = new MMU('SC'); // Initialize the MMU with FIFO algorithm
+    const mmu = new MMU('FIFO'); // Initialize the MMU with FIFO algorithm
 
     //await writeSequenceToFile(10, 500, 12345); // Example usage
 
