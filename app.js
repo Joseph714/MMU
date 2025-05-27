@@ -707,8 +707,6 @@ function aplicarToken(mmu, token, tipo) {
   }
 }
 
-const pidColors = {};
-
 async function hacerSimulacion(tokens) {
   const algoritmo = document.getElementById("idAlg").value;
   const mmuA = new MMU(algoritmo);
@@ -719,22 +717,29 @@ async function hacerSimulacion(tokens) {
   await procesarTokensConRetraso(mmuA, mmuO, tokens, 50);
 }
 
+const pidColors = {};
+
 function pintarPaginas(pages, tipo) {
   for (const page of pages) {
-    const pid = page.pid;
-    const pageId = page.pageId;
+    // sólo pintamos las que están realmente en RAM
+    if (!page.inRAM) continue;
 
+    const pid   = page.pid;
+    const frame = page.frame;    // número entre 0 y 99
+
+    // asigna (la primera vez) un color fijo a este PID
     if (!pidColors[pid]) {
-      const colorIndex = (pid - 1) % pastelColors.length;
-      pidColors[pid] = pastelColors[colorIndex];
+      const idx = (pid - 1) % pastelColors.length;
+      pidColors[pid] = pastelColors[idx];
     }
 
-    // Usa pgXALG o pgXOPT según el tipo
-    const celda = document.getElementById(`pg${pageId}${tipo}`);
+    // busca la celda por el índice de marco y el tipo ("OPT" o "ALG")
+    const celda = document.getElementById(`pg${frame}${tipo}`);
     if (celda) {
       celda.style.backgroundColor = pidColors[pid];
+      celda.dataset.pid = pid; 
     } else {
-      console.warn(`No se encontró pg${pageId}${tipo}`);
+      console.warn(`No existe celda pg${frame}${tipo}`);
     }
   }
 }
@@ -777,17 +782,37 @@ function limpiarPaginas(pages, tipo) {
 }
 
 function limpiarPaginasPorPID(mmu, pid, tipo) {
+  // Obtenemos todos los punteros que el proceso aún tiene
   const ptrs = mmu.symbolTable.get(pid) || [];
 
+  if (ptrs.length === 0) {
+    // Caso A: no hay ptrs, pero el proceso sigue vivo → 
+    // limpiamos todas las celdas que tengan el color de este PID.
+    const color = pidColors[pid];
+    if (color) {
+      // todas las celdas de RAM llevan la clase "pagesMF"
+      document.querySelectorAll(`.pagesMF`).forEach(cell => {
+        // Compara style.backgroundColor (string) con el color exacto
+        if (cell.style.backgroundColor === color) {
+          cell.style.backgroundColor = "";
+        }
+      });
+    }
+    return;
+  }
+
+  // Caso B: el proceso aún tiene páginas asignadas → limpiamos cada una
   for (const ptr of ptrs) {
     const pages = mmu.memoryMap.get(ptr)?.pages || [];
 
     for (const page of pages) {
-      // Quitar color de RAM
-      const celda = document.getElementById(`pg${page.pageId}${tipo}`);
-      if (celda) celda.style.backgroundColor = "";
+      // 1) Si la página estaba en RAM, quitamos su color del marco físico
+      if (page.inRAM && page.frame != null) {
+        const celda = document.getElementById(`pg${page.frame}${tipo}`);
+        if (celda) celda.style.backgroundColor = "";
+      }
 
-      // Eliminar fila de tabla
+      // 2) Quitamos la fila de la tabla de MMU (usa pageId para el row id)
       const fila = document.getElementById(`row_pg${pid}${tipo}`);
       if (fila) fila.remove();
     }
