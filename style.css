@@ -56,7 +56,8 @@ body{
 
 .pagesMF{
     border: 1px solid #969696;
-    width: 12 px;
+    width: 12px;
+    height: 20px;
 }
 
 .titleTables{
